@@ -5,4 +5,6 @@ pub enum GameError {
     TargetNotInRange,
     CannotSpawnEntityWithSameId(u32),
     NotEnoughActionPoints { current: u32, required: u32 },
+    OutOfBounds,
+    NotWalkableTile,
 }

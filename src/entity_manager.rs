@@ -49,7 +49,7 @@ impl Position {
         Self { x, y }
     }
 
-    pub fn calc_dist(&self, to: &Position) -> u32 {
+    pub fn calculate_manhattan_distance(&self, to: &Position) -> u32 {
         let x = self.x.abs_diff(to.x);
         let y = self.y.abs_diff(to.y);
 

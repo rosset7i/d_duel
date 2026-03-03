@@ -12,7 +12,11 @@ pub fn attack(attacker: &mut Entity, target: &mut Entity) -> Result<(), GameErro
         });
     }
 
-    if attacker.position.calc_dist(&target.position) > RANGE {
+    if attacker
+        .position
+        .calculate_manhattan_distance(&target.position)
+        > RANGE
+    {
         return Err(GameError::TargetNotInRange);
     }
 
