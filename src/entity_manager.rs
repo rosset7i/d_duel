@@ -38,7 +38,7 @@ impl Stats {
     }
 }
 
-#[derive(Hash)]
+#[derive(Hash, PartialEq, Debug)]
 pub struct Position {
     pub x: u32,
     pub y: u32,
@@ -68,5 +68,28 @@ impl Entity {
 
     pub fn set_id(&mut self, id: u32) {
         self.id = id;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn deduct_ap_should_return_zero_when_overflow() {
+        let mut stats = Stats::new(1, 4);
+
+        stats.deduct_ap(5);
+
+        assert_eq!(stats.ap, 0);
+    }
+
+    #[test]
+    fn deduct_hp_should_return_zero_when_overflow() {
+        let mut stats = Stats::new(4, 1);
+
+        stats.deduct_hp(5);
+
+        assert_eq!(stats.hp, 0);
     }
 }
