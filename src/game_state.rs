@@ -285,6 +285,25 @@ mod tests {
         assert!(result.is_err());
     }
 
+    #[test]
+    fn move_alter_entity_position_when_success() {
+        let mut game_state = GameState::new(123);
+        game_state
+            .apply(Action::Spawn(Entity::new(1, 100, 1, 1)))
+            .unwrap();
+
+        let result = game_state.apply(Action::Move {
+            entity_id: 1,
+            position: Position::new(2, 2),
+        });
+
+        assert!(result.is_ok());
+        assert_eq!(
+            game_state.entities.first().unwrap().position,
+            Position::new(2, 2)
+        );
+    }
+
     fn get_game_state_with_entities(seed: u64) -> GameState {
         let mut game_state = GameState::new(seed);
 
