@@ -1,8 +1,15 @@
+use crate::game_state::Action;
+
+pub type EntityId = u32;
+
+const ATTACK_COST: u32 = 4;
+
 #[derive(Hash)]
 pub struct Entity {
-    pub id: u32,
+    pub id: EntityId,
     pub stats: Stats,
     pub position: Position,
+    pub is_dead: bool,
 }
 
 #[derive(Hash)]
@@ -63,6 +70,15 @@ impl Entity {
             id: 0,
             stats: Stats::new(hp, ap),
             position: Position::new(pos_x, pos_y),
+            is_dead: false,
+        }
+    }
+
+    pub fn action_cost(&self, action: &Action) -> u32 {
+        match action {
+            Action::Move { position, .. } => self.position.calculate_manhattan_distance(&position),
+            Action::Attack { .. } => ATTACK_COST,
+            Action::Wait { .. } => 0,
         }
     }
 
