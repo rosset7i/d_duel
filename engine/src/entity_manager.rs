@@ -65,9 +65,9 @@ impl Position {
 }
 
 impl Entity {
-    pub fn new(hp: u32, ap: u32, pos_x: u32, pos_y: u32) -> Self {
+    pub fn new(id: EntityId, hp: u32, ap: u32, pos_x: u32, pos_y: u32) -> Self {
         Self {
-            id: 0,
+            id,
             stats: Stats::new(hp, ap),
             position: Position::new(pos_x, pos_y),
             is_dead: false,
