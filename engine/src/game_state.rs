@@ -35,7 +35,7 @@ pub struct GameState {
     pub current_actor: EntityId,
     pub entities: Vec<Entity>,
     pub map: GameMap,
-    tick: u64,
+    pub tick: u64,
 }
 
 impl GameState {
