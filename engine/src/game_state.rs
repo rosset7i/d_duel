@@ -82,11 +82,11 @@ impl GameState {
 
         match action {
             Action::Move { position, .. } => {
-                if !in_bounds(&self.map, &position) {
+                if !in_bounds(&self.map, position) {
                     return Err(GameError::OutOfBounds);
                 };
 
-                if !is_walkable(&self.map, &position) {
+                if !is_walkable(&self.map, position) {
                     return Err(GameError::NotWalkableTile);
                 };
 
@@ -144,11 +144,11 @@ impl GameState {
                 Ok(events)
             }
             Action::Attack { target, .. } => {
-                let hit = self.rng.roll() % 2 == 0;
+                let hit = self.rng.roll().is_multiple_of(2);
 
                 let events = if hit {
                     vec![Event::Damage {
-                        target: target,
+                        target,
                         amount: ATTACK_DAMAGE,
                     }]
                 } else {
@@ -186,7 +186,7 @@ impl GameState {
 
     fn cleanup(&mut self) {
         self.entities.iter_mut().for_each(|x| {
-            if x.stats.hp <= 0 {
+            if x.stats.hp == 0 {
                 x.is_dead = true
             }
         });

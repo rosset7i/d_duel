@@ -76,7 +76,7 @@ impl Entity {
 
     pub fn action_cost(&self, action: &Action) -> u32 {
         match action {
-            Action::Move { position, .. } => self.position.calculate_manhattan_distance(&position),
+            Action::Move { position, .. } => self.position.calculate_manhattan_distance(position),
             Action::Attack { .. } => ATTACK_COST,
             Action::Wait { .. } => self.stats.ap,
         }
