@@ -14,9 +14,9 @@ pub struct Entity {
 
 #[derive(Hash)]
 pub struct Stats {
-    hp: u32,
+    pub hp: u32,
     pub ap: u32,
-    max_ap: u32,
+    pub max_ap: u32,
 }
 
 impl Stats {
@@ -78,7 +78,7 @@ impl Entity {
         match action {
             Action::Move { position, .. } => self.position.calculate_manhattan_distance(&position),
             Action::Attack { .. } => ATTACK_COST,
-            Action::Wait { .. } => 0,
+            Action::Wait { .. } => self.stats.ap,
         }
     }
 

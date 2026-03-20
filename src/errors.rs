@@ -2,7 +2,9 @@ use crate::entity_manager::EntityId;
 
 #[derive(Debug)]
 pub enum GameError {
+    NoAvailableActor,
     NotYourTurn,
+    TargetNotAlive,
     EntityNotFound(EntityId),
     ActorDead(EntityId),
     NoEntities,

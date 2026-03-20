@@ -28,7 +28,6 @@ impl Action {
 enum Event {
     Moved { entity: EntityId, to: Position },
     Damage { target: EntityId, amount: u32 },
-    EndTurn,
 }
 
 pub struct GameState {
@@ -36,7 +35,7 @@ pub struct GameState {
     pub current_actor: EntityId,
     pub entities: Vec<Entity>,
     pub map: GameMap,
-    tick: u32,
+    tick: u64,
 }
 
 impl GameState {
@@ -55,13 +54,13 @@ impl GameState {
         self.consume_ap(&action)?;
         let events = self.apply_intent(action)?;
         self.resolve(events)?;
-        // self.cleanup();
-        // self.advance_turn_if_needed();
+        self.cleanup();
+        self.advance_turn_if_needed()?;
         self.tick += 1;
         Ok(())
     }
 
-    fn validate(&mut self, action: &Action) -> Result<(), GameError> {
+    fn validate(&self, action: &Action) -> Result<(), GameError> {
         let actor = action.actor();
 
         if actor != self.current_actor {
@@ -91,6 +90,14 @@ impl GameState {
                     return Err(GameError::NotWalkableTile);
                 };
 
+                if self
+                    .entities
+                    .iter()
+                    .any(|e| !e.is_dead && e.position == *position)
+                {
+                    return Err(GameError::NotWalkableTile);
+                }
+
                 Ok(())
             }
             Action::Attack { target, .. } => {
@@ -104,6 +111,10 @@ impl GameState {
                     > RANGE
                 {
                     return Err(GameError::TargetNotInRange);
+                }
+
+                if target_entity.is_dead {
+                    return Err(GameError::TargetNotAlive);
                 }
 
                 Ok(())
@@ -133,13 +144,20 @@ impl GameState {
                 Ok(events)
             }
             Action::Attack { target, .. } => {
-                let events: Vec<Event> = vec![Event::Damage {
-                    target: target,
-                    amount: ATTACK_DAMAGE,
-                }];
+                let hit = self.rng.roll() % 2 == 0;
+
+                let events = if hit {
+                    vec![Event::Damage {
+                        target: target,
+                        amount: ATTACK_DAMAGE,
+                    }]
+                } else {
+                    vec![]
+                };
+
                 Ok(events)
             }
-            Action::Wait { .. } => Ok(vec![Event::EndTurn]),
+            Action::Wait { .. } => Ok(vec![]),
         }
     }
 
@@ -160,9 +178,39 @@ impl GameState {
 
                     entity.stats.deduct_hp(amount);
                 }
-                Event::EndTurn => (),
             }
         }
+
+        Ok(())
+    }
+
+    fn cleanup(&mut self) {
+        self.entities.iter_mut().for_each(|x| {
+            if x.stats.hp <= 0 {
+                x.is_dead = true
+            }
+        });
+    }
+
+    fn advance_turn_if_needed(&mut self) -> Result<(), GameError> {
+        let actor = self.current_actor;
+        let entity = self.entity(actor).ok_or(GameError::EntityNotFound(actor))?;
+
+        if !entity.is_dead && entity.stats.ap > 0 {
+            return Ok(());
+        }
+
+        let next = self
+            .entities
+            .iter()
+            .find(|x| !x.is_dead && x.id != actor)
+            .ok_or(GameError::NoAvailableActor)?
+            .id;
+
+        self.current_actor = next;
+
+        let next_entity = self.entity_mut(next).unwrap();
+        next_entity.stats.ap = next_entity.stats.max_ap;
 
         Ok(())
     }
@@ -180,6 +228,7 @@ impl GameState {
         self.entities.hash(&mut hasher);
         self.current_actor.hash(&mut hasher);
         self.rng.hash(&mut hasher);
+        self.tick.hash(&mut hasher);
         hasher.finish()
     }
 }

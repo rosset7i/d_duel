@@ -1,4 +1,4 @@
-use std::hash::{DefaultHasher, Hash};
+use std::hash::Hash;
 
 use rand_chacha::{
     ChaCha8Rng,
@@ -9,7 +9,7 @@ use rand_chacha::{
 pub struct DeterministicRng {
     rng: ChaCha8Rng,
     seed: u64,
-    calls: u8,
+    calls: u64,
 }
 
 impl DeterministicRng {
@@ -25,9 +25,11 @@ impl DeterministicRng {
         self.calls += 1;
         self.rng.next_u32()
     }
+}
 
-    pub fn hash(&self, hasher: &mut DefaultHasher) {
-        self.seed.hash(hasher);
-        self.calls.hash(hasher);
+impl Hash for DeterministicRng {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.seed.hash(state);
+        self.calls.hash(state);
     }
 }
