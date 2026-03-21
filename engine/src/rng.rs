@@ -5,7 +5,6 @@ use rand_chacha::{
     rand_core::{Rng, SeedableRng},
 };
 
-#[derive(Clone)]
 pub struct DeterministicRng {
     rng: ChaCha8Rng,
     seed: u64,

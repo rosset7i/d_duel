@@ -1,16 +1,15 @@
-use crate::entity_manager::EntityId;
+use crate::entity_manager::{EntityId, Position};
 
 #[derive(Debug)]
 pub enum GameError {
-    NoAvailableActor,
-    NotYourTurn,
-    TargetNotAlive,
+    NotYourTurn(EntityId),
     EntityNotFound(EntityId),
     ActorDead(EntityId),
-    NoEntities,
-    TargetNotInRange,
-    CannotSpawnEntityWithSameId(EntityId),
     NotEnoughActionPoints { current: u32, required: u32 },
-    OutOfBounds,
-    NotWalkableTile,
+    OutOfBounds(Position),
+    NotWalkableTile(Position),
+    TileOccupied(Position),
+    TargetNotInRange(EntityId),
+    TargetDead(EntityId),
+    NoAvailableActor,
 }

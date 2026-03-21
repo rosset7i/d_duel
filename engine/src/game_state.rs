@@ -6,7 +6,7 @@ use crate::{
 };
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-const RANGE: u32 = 2; // 2 For manhattan diagonal attacks
+const RANGE: u32 = 1;
 const ATTACK_DAMAGE: u32 = 2;
 
 pub enum Action {
@@ -64,7 +64,7 @@ impl GameState {
         let actor = action.actor();
 
         if actor != self.current_actor {
-            return Err(GameError::NotYourTurn);
+            return Err(GameError::NotYourTurn(actor));
         }
 
         let entity = self.entity(actor).ok_or(GameError::EntityNotFound(actor))?;
@@ -83,11 +83,11 @@ impl GameState {
         match action {
             Action::Move { position, .. } => {
                 if !in_bounds(&self.map, position) {
-                    return Err(GameError::OutOfBounds);
+                    return Err(GameError::OutOfBounds(position.clone()));
                 };
 
                 if !is_walkable(&self.map, position) {
-                    return Err(GameError::NotWalkableTile);
+                    return Err(GameError::NotWalkableTile(position.clone()));
                 };
 
                 if self
@@ -95,7 +95,7 @@ impl GameState {
                     .iter()
                     .any(|e| !e.is_dead && e.position == *position)
                 {
-                    return Err(GameError::NotWalkableTile);
+                    return Err(GameError::TileOccupied(position.clone()));
                 }
 
                 Ok(())
@@ -110,11 +110,11 @@ impl GameState {
                     .calculate_manhattan_distance(&target_entity.position)
                     > RANGE
                 {
-                    return Err(GameError::TargetNotInRange);
+                    return Err(GameError::TargetNotInRange(*target));
                 }
 
                 if target_entity.is_dead {
-                    return Err(GameError::TargetNotAlive);
+                    return Err(GameError::TargetDead(*target));
                 }
 
                 Ok(())

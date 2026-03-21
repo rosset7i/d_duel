@@ -45,7 +45,7 @@ impl Stats {
     }
 }
 
-#[derive(Hash, PartialEq, Debug)]
+#[derive(Hash, PartialEq, Debug, Clone)]
 pub struct Position {
     pub x: u32,
     pub y: u32,
