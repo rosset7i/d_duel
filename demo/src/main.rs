@@ -22,7 +22,7 @@ fn setup_duel(seed: u64) -> GameState {
 
     state.entities.push(Entity::new(1, 10, 100, 1, 1));
 
-    state.entities.push(Entity::new(2, 100, 10, 8, 1));
+    state.entities.push(Entity::new(2, 100, 10, 6, 1));
 
     state.current_actor = 1;
 
@@ -58,7 +58,7 @@ fn choose_action(state: &GameState) -> Result<Action, GameError> {
         return Ok(Action::Wait { actor });
     }
 
-    if dist <= 2 {
+    if dist <= 1 {
         return Ok(Action::Attack {
             actor,
             target: target.id,
